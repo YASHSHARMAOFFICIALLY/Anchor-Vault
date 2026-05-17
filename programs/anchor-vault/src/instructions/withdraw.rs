@@ -1,4 +1,5 @@
-use crate::state::ValutState;
+use crate::{state::ValutState,error::ErrorCode};
+
 use anchor_lang::{
     prelude::*,
     system_program::{transfer,Transfer},
@@ -29,6 +30,11 @@ pub struct Withdraw<'info>{
 
 impl<'info>Withdraw<'info>{
     pub fn withdraw(&mut self,amount:u64)->Result<()>{
+        require!(amount>0,ErrorCode::InvalidAmount);
+        require!(
+            amount<= self.vault.lamports(),
+            ErrorCode::InsufficientFunds,
+        );
         let cpi_account = Transfer{
             from:self.vault.to_account_info(),
             to:self.user.to_account_info(),

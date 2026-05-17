@@ -1,5 +1,6 @@
 use anchor_lang::{prelude::*, system_program::{transfer,Transfer}};
-use crate::state::ValutState;
+use crate::{error::ErrorCode,state::ValutState};
+
 
 
 #[derive(Accounts)]
@@ -31,6 +32,7 @@ pub struct  Deposit<'info> {
 
 
 impl <'info>Deposit<'info>{
+    require!(amount > 0, ErrorCode::InvalidAmount);
     pub fn deposit(&mut self,amount:u64)->Result<()>{
         let cpi_account:Transfer<'_> = Transfer{
             from:self.user.to_account_info(),
